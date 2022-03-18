@@ -14,33 +14,25 @@ import psycopg2
 import json
 
 dag = DAG(
-    dag_id = 'MySQL_to_Redshift_v3',
-    start_date = datetime(2022,3,10), # 날짜가 미래인 경우 실행이 안됨
+    dag_id = 'MySQL_to_Redshift',
+    start_date = datetime(2021,11,27), # 날짜가 미래인 경우 실행이 안됨
     schedule_interval = '0 9 * * *',  # 적당히 조절
     max_active_runs = 1,
-    catchup = True,
+    catchup = False,
     default_args = {
         'retries': 1,
         'retry_delay': timedelta(minutes=3),
     }
 )
 
-schema = "k456123456"
+schema = "keeyong"
 table = "nps"
 s3_bucket = "grepp-data-engineering"
 s3_key = schema + "-" + table
 
-s3_folder_cleanup = S3DeleteObjectsOperator(
-    task_id = 's3_folder_cleanup',
-    bucket = s3_bucket,
-    keys = s3_key,
-    aws_conn_id = "aws_conn_id",
-    dag = dag
-)
-
 mysql_to_s3_nps = MySQLToS3Operator(
     task_id = 'mysql_to_s3_nps',
-    query = "SELECT * FROM prod.nps WHERE DATE(created_at) = DATE('{{ execution_date }}')",
+    query = "SELECT * FROM prod.nps",
     s3_bucket = s3_bucket,
     s3_key = s3_key,
     mysql_conn_id = "mysql_conn_id",
@@ -57,9 +49,7 @@ s3_to_redshift_nps = S3ToRedshiftOperator(
     table = table,
     copy_options=['csv'],
     redshift_conn_id = "redshift_dev_db",
-    primary_key = "id",
-    order_key = "created_at",
     dag = dag
 )
 
-s3_folder_cleanup >> mysql_to_s3_nps >> 
+mysql_to_s3_nps >> s3_to_redshift_nps
