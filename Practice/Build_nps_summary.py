@@ -76,7 +76,7 @@ execsql = PythonOperator(
           , COUNT(DISTINCT CASE WHEN score >=9 THEN id END) as promoter
           , COUNT(DISTINCT CASE WHEN score >=0 and score <=6 THEN id END) as detractor
           , COUNT(DISTINCT id) as total
-          FROM raw_data.nps
+          FROM k456123456.nps
           GROUP BY 1
         );"""
     },
