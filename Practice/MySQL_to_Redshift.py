@@ -1,8 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.transfers.mysql_to_s3 import MySQLToS3Operator
-from plugins.s3_to_redshift_operator import S3ToRedshiftOperator
-from airflow.providers.amazon.aws.operators.s3_delete_objects import S3DeleteObjectsOperator
+from airflow.providers.amazon.aws.transfers.s3_to_redshift import S3ToRedshiftOperator
 from airflow.models import Variable
 
 from datetime import datetime
